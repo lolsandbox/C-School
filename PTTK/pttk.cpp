@@ -4,29 +4,31 @@ using namespace std;
 const int MAXN = 5e5 + 5;
 
 int n, q;
-int args[MAXN];
-vector<long long> tree[MAXN];
+vector<int> args;
+vector<long long> st[MAXN * 4];
 
-void buildTree(int id, int l, int r) {
+void buildTree(int id, int l, int r ) {
     if (l == r) {
-        tree[id].push_back(args[l]);
-        return;
+        st[id].push_back(a[l]);
+        return ;
     }
-
     int mid = (l + r) / 2;
-    buildTree(2 * id, l, mid);
-    buildTree(2 * id + 1, mid + 1, r);
+    buildTree(id*2, l, mid);
+    buildTree(id*2 + 1, mid + 1, r);
 
-    merge(tree[id*2].begin(), tree[id*2].end(), tree[id*2+1].begin(), tree[id*2+1].end(), tree[id].begin());
+    merge(st[id*2].begin(), st[id*2].end(), st[id*2+1].begin(), st[id*2+1].end(), st[id].begin());
 }
 
-int get(int id, int l, int r, int u, int v, int k) {
-    if (v < l || r < u) return 0;
-    if (u <= l && r <= v) {
-        return tree[id].size() - (upper_bound(tree[id].begin(), tree[id].end(), k) - tree[id].begin());
+long long getK(int id, int l, int r, int u, int v, int k) {
+    if (v < l || r < u) {
+        return 0;
     }
+    if (u <= l && r <= v) {
+        return st[id].size() - (upper_bound(st[id].begin(), st[id].end(), k) - st[id].begin());
+    }
+
     int mid = (l + r) / 2;
-    return get(2 * id, l, mid, u, v, k) + get(2 * id + 1, mid + 1, r, u, v, k);
+    return 
 }
 
 int main() {
@@ -37,13 +39,21 @@ int main() {
     freopen("pttk.out", "w", stdout);
 
     cin >> n;
+
+    args.resize(n + 5);
     for (int i = 1; i <= n; i++) cin >> args[i];
-    buildTree(1, 1, n);
+    // buildTree(1, 1, n);
 
     cin >> q;
     for(int i = 1; i <= q; i++) {
         int l, r, k; cin >> l >> r >> k;
-        cout << get(1, 1, n, l, r, k) << "\n";
+        sort(args.begin() + l, args.begin() + r + 1, );
+        cout << args[k] << "\n";
+        for (int t = 1; t <= n; t++) {
+            cout << args[t] << " ";
+        }
+        cout << "\n";
+        // cout << get(1, 1, n, l, r, k) << "\n";
     }
     return 0;
 }
