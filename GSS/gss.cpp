@@ -34,7 +34,7 @@ void buildTree(int id, int l, int r) {
 }
 
 Nodes get(int id, int l, int r, int u, int v) {
-    if (l > v || r < u) return {0, -INT_MIN, -INT_MIN, -INT_MIN};
+    if (l > v || r < u) return {-INT_MIN, -INT_MIN, 0, -INT_MIN};
     if (l >= u && r <= v) return nodes[id];
 
     int mid = (l + r) / 2;
