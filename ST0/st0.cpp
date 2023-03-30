@@ -69,7 +69,7 @@ int main() {
     while (q--) {
         int type, l, r;
         cin >> type >> l >> r;
-        if (type == 0) {
+        if (type == 1) {
             update(1, 1, n, l, r);
         } else {
             cout << get(1, 1, n, l, r) << "\n";
