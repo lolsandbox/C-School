@@ -2,45 +2,55 @@
 
 using namespace std;
 
-const int maxN = 5e4 + 5;
-
+const int maxN = 5e5 + 5;
 struct Nodes {
-    int sum, prefix, suffix, best;
-} nodes[maxN];
-
-Nodes combine(Nodes l, Nodes r) {
-    Nodes res;
-    res.sum = l.sum + r.sum;
-    res.prefix = max(l.prefix, l.sum + r.prefix);
-    res.suffix = max(r.suffix, r.sum + l.suffix);
-    res.best = max(max(l.best, r.best), l.suffix + r.prefix);
-    return res;
-}
+    int sum;
+    int maxSum;
+    int maxLeft;
+    int maxRight;
+} st[4 * maxN];
 
 int n, m;
 int args[maxN];
 
-void buildTree(int id, int l, int r) {
+void build(int id, int l, int r) {
     if (l == r) {
-        nodes[id].sum = nodes[id].prefix = nodes[id].suffix = nodes[id].best = args[l];
+        st[id] = {args[l], args[l], args[l], args[l]};
         return;
     }
 
     int mid = (l + r) / 2;
-    buildTree(2 * id, l, mid);
-    buildTree(2 * id + 1, mid + 1, r);
+    build(2 * id, l, mid);
+    build(2 * id + 1, mid + 1, r);
 
-    nodes[id] = combine(nodes[2 * id], nodes[2 * id + 1]);
+    int sum = st[2 * id].sum + st[2 * id + 1].sum;
+    int maxSum = max(max(st[2 * id].maxSum, st[2 * id + 1].maxSum), st[2 * id].maxRight + st[2 * id + 1].maxLeft);
+    int maxLeft = max(st[2 * id].maxLeft, st[2 * id].sum + st[2 * id + 1].maxLeft);
+    int maxRight = max(st[2 * id + 1].maxRight, st[2 * id + 1].sum + st[2 * id].maxRight);
+
+    st[id] = {sum, maxSum, maxLeft, maxRight};
 }
 
 Nodes get(int id, int l, int r, int u, int v) {
-    if (l > v || r < u) return {-INT_MIN, -INT_MIN, 0, -INT_MIN};
-    if (l >= u && r <= v) return nodes[id];
+    if (l > v || r < u) {
+        return {0, -1000000000, -1000000000, -1000000000};
+    }
+
+    if (l >= u && r <= v) {
+        return st[id];
+    }
 
     int mid = (l + r) / 2;
-    Nodes lt = get(2 * id, l, mid, u, v);
-    Nodes rt = get(2 * id + 1, mid + 1, r, u, v);
-    return combine(lt, rt);
+    Nodes t1 = get(2 * id, l, mid, u, v);
+    Nodes t2 = get(2 * id + 1, mid + 1, r, u, v);
+
+    int sum = t1.sum + t2.sum;
+    int maxSum = max(max(t1.maxSum, t2.maxSum), t1.maxRight + t2.maxLeft);
+    int maxLeft = max(t1.maxLeft, t1.sum + t2.maxLeft);
+    int maxRight = max(t2.maxRight, t1.maxRight + t2.sum);
+
+    Nodes t = {sum, maxSum, maxLeft, maxRight};
+    return t;
 }
 
 int main() {
@@ -49,16 +59,23 @@ int main() {
 
     freopen("gss.inp", "r", stdin);
     freopen("gss.out", "w", stdout);
-    
+
     cin >> n;
+    for (int i = 1; i <= n; i++) {
+        cin >> args[i];
+    }
+    build(1, 1, n);
 
-    for (int i = 1; i <= n; i++) cin >> args[i];
-    buildTree(1, 1, n);
-
+    for (int i = 1; i <= n * 4; i++) {
+        cout << st[i].sum << " " << st[i].maxSum << " " << st[i].maxLeft << " " << st[i].maxRight << "\n";
+    }
+    cout << "\n";
     cin >> m;
     while (m--) {
-        int l, r; cin >> l >> r;
-        cout << get(1, 1, n, l, r).best << "\n";
+        int l, r;
+        cin >> l >> r;
+        Nodes ans = get(1, 1, n, l, r);
+        cout << ans.sum << " " <<  ans.maxSum << " " << ans.maxLeft << " " << ans.maxRight << "\n";
     }
     return 0;
 }

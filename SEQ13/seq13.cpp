@@ -34,8 +34,8 @@ int get(int id, int l, int r, int u, int v) {
 }
 
 int main() {
-    // ios_base::sync_with_stdio(0);
-    // cin.tie(0);
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
 
     freopen("seq13.inp", "r", stdin);
     freopen("seq13.out", "w", stdout);

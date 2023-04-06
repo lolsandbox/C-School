@@ -1,34 +1,48 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int MAXN = 5e5 + 5;
+const int maxN = 1e5 + 5;
+int n, q, cnt, found, res;
+int L, R, k;
+int args[maxN];
+vector<long long> st[4 * maxN];
 
-int n, q;
-vector<int> args;
-vector<long long> st[MAXN * 4];
-
-void buildTree(int id, int l, int r ) {
+void buildTree(int id, int l, int r) {
     if (l == r) {
-        st[id].push_back(a[l]);
-        return ;
+        st[id].push_back(args[l]);
+        return;
     }
-    int mid = (l + r) / 2;
-    buildTree(id*2, l, mid);
-    buildTree(id*2 + 1, mid + 1, r);
 
-    merge(st[id*2].begin(), st[id*2].end(), st[id*2+1].begin(), st[id*2+1].end(), st[id].begin());
+    int mid = (l + r) / 2;
+    buildTree(2 * id, l, mid);
+    buildTree(2 * id + 1, mid + 1, r);
+
+    merge(st[2 * id].begin(), st[2 * id].end(), st[2 * id + 1].begin(), st[2 * id + 1].end(), back_inserter(st[id]));
 }
 
-long long getK(int id, int l, int r, int u, int v, int k) {
-    if (v < l || r < u) {
-        return 0;
+void get(int id, int l, int r) {
+    if (l > R || r < L) return;
+    if (l >= L && r <= R) {
+        int i = 0;
+        int j = (int)st[id].size() - 1;
+        int pos = -1;
+        while (i <= j) {
+            int mid = (i + j) / 2;
+            if (st[id][mid] <= res) {
+                pos = mid;
+                i = mid + 1;
+            } else {
+                j = mid - 1;
+            }
+        }
+        if (pos == -1) return;
+        cnt += pos + 1;
+        if (st[id][pos] == res) found = true, cnt--;
+        return;
     }
-    if (u <= l && r <= v) {
-        return st[id].size() - (upper_bound(st[id].begin(), st[id].end(), k) - st[id].begin());
-    }
-
     int mid = (l + r) / 2;
-    return 
+    get(2 * id, l, mid);
+    get(2 * id + 1, mid + 1, r);
 }
 
 int main() {
@@ -39,21 +53,34 @@ int main() {
     freopen("pttk.out", "w", stdout);
 
     cin >> n;
+    for (int i = 1; i <= n; i++) {
+        cin >> args[i];
+    }
 
-    args.resize(n + 5);
-    for (int i = 1; i <= n; i++) cin >> args[i];
-    // buildTree(1, 1, n);
+    buildTree(1, 1, n);
 
     cin >> q;
-    for(int i = 1; i <= q; i++) {
-        int l, r, k; cin >> l >> r >> k;
-        sort(args.begin() + l, args.begin() + r + 1, );
-        cout << args[k] << "\n";
-        for (int t = 1; t <= n; t++) {
-            cout << args[t] << " ";
+    while (q--) {
+        cin >> L >> R >> k;
+        int l = 0, r = (int)st[1].size() - 1;
+        while (l <= r) {
+            int mid = (l + r) / 2;
+            cnt = 0;
+            found = false;
+            res = st[1][mid];
+            get(1, 1, n);
+            if (cnt == k - 1 && found == true) {
+                cout << res << "\n";
+                break;
+            }
+            if (cnt < k) {
+                l = mid + 1;
+            } else {
+                r = mid - 1;
+            }
         }
-        cout << "\n";
-        // cout << get(1, 1, n, l, r, k) << "\n";
+        
     }
+
     return 0;
 }
